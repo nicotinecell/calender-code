@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Minimalist Dark Calendar</title>
+    
+    <!-- FullCalendar Core & Google Calendar Plugin via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
+
+    <style>
+        /* 
+         * 1. NOTION DARK THEME & TYPOGRAPHY 
+         */
+        :root {
+            /* FullCalendar CSS Variable Overrides */
+            --fc-border-color: #2a2a2a;
+            --fc-page-bg-color: #191919;
+            --fc-neutral-bg-color: #191919;
+            --fc-list-event-hover-bg-color: #2a2a2a;
+            --fc-today-bg-color: rgba(255, 255, 255, 0.02);
+            --fc-now-indicator-color: #ea596e; /* Sleek Notion-style red */
+            
+            /* Dynamic Event Colors (Deep Muted Jewel Tone) */
+            --fc-event-bg-color: #232b32;
+            --fc-event-border-color: #32404c;
+            --fc-event-text-color: #d9e2ec;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #191919;
+            color: rgba(255, 255, 255, 0.85);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13px;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Lock body scroll, allow calendar internal scroll */
+        }
+
+        /* 
+         * 2. INVISIBLE SCROLLBARS 
+         */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        * {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* 
+         * 3. ZERO CLUTTER LAYOUT 
+         */
+        #calendar {
+            height: 100vh;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 0 0 0; /* Slight top padding for the buttons */
+        }
+
+        /* 
+         * 4. STRICT MINIMALIST HEADER 
+         */
+        .fc-header-toolbar {
+            display: flex !important;
+            justify-content: center !important;
+            margin-bottom: 12px !important;
+            padding: 0 !important;
+        }
+        
+        .fc-toolbar-chunk {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Hide everything except the center chunk */
+        .fc-toolbar-chunk:first-child,
+        .fc-toolbar-chunk:last-child {
+            display: none !important;
+        }
+
+        /* Sleek Button UI States */
+        .fc .fc-button-primary {
+            background-color: #252525 !important;
+            border: 1px solid #333333 !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 6px;
+            padding: 6px 16px;
+            text-transform: capitalize;
+            box-shadow: none !important;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .fc .fc-button-primary:hover {
+            background-color: #2f2f2f !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            border-color: #444444 !important;
+        }
+
+        .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: #3a3a3a !important;
+            border-color: #555555 !important;
+            color: #ffffff !important;
+        }
+
+        .fc .fc-button-primary:focus {
+            box-shadow: none !important;
+        }
+
+        /* 
+         * 5. SLEEK DAY LABELS & GRID TYPOGRAPHY 
+         */
+        .fc-theme-standard th {
+            border-bottom: 1px solid var(--fc-border-color);
+            border-right: 1px solid var(--fc-border-color);
+        }
+        
+        .fc-theme-standard td {
+            border-right: 1px solid var(--fc-border-color);
+            border-bottom: 1px solid var(--fc-border-color);
+        }
+
+        .fc-col-header-cell-cushion {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            font-size: 11px;
+            padding: 10px 4px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .fc-timegrid-axis-cushion, 
+        .fc-timegrid-slot-label-cushion {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 10px;
+            font-weight: 400;
+            padding: 0 8px !important;
+        }
+
+        /* 
+         * 6. EVENT STYLING (Dynamic & Professional) 
+         */
+        .fc-v-event {
+            border-left: 3px solid #5c7c99 !important; /* Accent left border */
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            padding: 3px 5px;
+            transition: transform 0.1s ease, filter 0.1s ease;
+        }
+
+        .fc-v-event:hover {
+            filter: brightness(1.1);
+        }
+
+        .fc-event-main {
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.4;
+            color: var(--fc-event-text-color) !important;
+        }
+
+        .fc-event-time {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-bottom: 2px;
+            font-weight: 400;
+        }
+
+        /* 
+         * 7. CURRENT TIME INDICATOR 
+         */
+        .fc-timegrid-now-indicator-line {
+            border-width: 1.5px !important;
+            box-shadow: 0 0 4px rgba(234, 89, 110, 0.4);
+        }
+        
+        .fc-timegrid-now-indicator-arrow {
+            border-width: 5px !important;
+            border-top-color: transparent !important;
+            border-bottom-color: transparent !important;
+        }
+
+        /* Hide the all-day slot to maintain strict minimalist time-grid */
+        .fc-daygrid-body, .fc-timegrid-divider {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="calendar"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                // Core Settings
+                initialView: 'timeGridWeek',
+                height: '100%',
+                weekends: false, // Hide weekends (Mon-Fri only)
+                nowIndicator: true, // Show current time bar
+                allDaySlot: false, // Remove all-day slot for zero clutter
+                
+                // Google Calendar Integration
+                googleCalendarApiKey: 'AIzaSyBPZXqq6Tk_G0pI4jomdwdQJ7IuvlTATWw',
+                events: 'ellisbish@gmail.com',
+                
+                // Minimalist Header (Locked Navigation)
+                headerToolbar: {
+                    left: '',
+                    center: 'timeGridDay,timeGridWeek',
+                    right: ''
+                },
+                
+                // Button Text Customization
+                buttonText: {
+                    timeGridDay: 'Day',
+                    timeGridWeek: 'Week'
+                },
+
+                // Typography & Formatting
+                slotLabelFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    omitZeroMinute: false,
+                    meridiem: 'short'
+                },
+                dayHeaderFormat: { 
+                    weekday: 'short', 
+                    day: 'numeric' 
+                },
+                
+                // UX Enhancements
+                slotDuration: '00:30:00',
+                expandRows: true,
+                stickyHeaderDates: true
+            });
+            
+            calendar.render();
+        });
+    </script>
+
+</body>
+</html>
